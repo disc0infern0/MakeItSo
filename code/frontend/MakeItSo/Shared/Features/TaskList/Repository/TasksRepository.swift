@@ -75,7 +75,7 @@ class TasksRepository: ObservableObject {
       unsubscribe()
     }
     let query = db.collection("tasks")
-      .whereField("userId", isEqualTo: userId)
+//      .whereField("userId", isEqualTo: userId)
     
     listenerRegistration = query
       .addSnapshotListener { [weak self] (querySnapshot, error) in

@@ -1,8 +1,8 @@
 //
-//  MakeItSoApp.swift
+//	MakeItSoApp+Injection.swift
 //  MakeItSo
 //
-//  Created by Peter Friese on 25.10.21.
+//  Created by Peter Friese on 10.11.21.
 //  Copyright © 2021 Google LLC. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,29 +17,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
-import Firebase
+import Foundation
 import Resolver
+import Firebase
 
-@main
-struct MakeItSoApp: App {
-  @LazyInjected
-  var authenticationService: AuthenticationService
-  
-  @StateObject
-  var viewModel = TasksListViewModel()
-  
-  init() {
-    FirebaseApp.configure()
-    authenticationService.signIn()
-  }
-  
-  var body: some Scene {
-    WindowGroup {
-      NavigationView {
-        TasksListView()
-          .environmentObject(viewModel)
-      }
-    }
+extension Resolver: ResolverRegistering {
+  public static func registerAllServices() {
+    // register Firebase services
+    register { Firestore.firestore().enableLogging(on: false) }.scope(.application)
+    
+    // register application components
+    register { AuthenticationService() }.scope(.application)
+    
+    register { TasksRepository() }.scope(.application)
   }
 }
+
+extension Firestore {
+  func enableLogging(on: Bool = true) -> Firestore {
+    Self.enableLogging(on)
+    return self
+  }
+}
+

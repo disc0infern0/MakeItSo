@@ -34,31 +34,39 @@ struct TasksListView: View {
   }
   
   var body: some View {
-    List {
-      ForEach($viewModel.tasks) { $task in
-        TaskListRowView(task: $task)
-          .focused($focusedTask, equals: .row(id: task.id))
-          .onSubmit {
-            viewModel.createNewTask()
+    VStack {
+      if viewModel.tasks.count == 0 {
+        Text("No Reminders")
+          .foregroundColor(Color(UIColor.systemGray2))
+      }
+      else {
+        List {
+          ForEach($viewModel.tasks) { $task in
+            TaskListRowView(task: $task)
+              .focused($focusedTask, equals: .row(id: task.id ?? ""))
+              .onSubmit {
+                viewModel.createNewTask()
+              }
+              .swipeActions {
+                Button(role: .destructive, action: { viewModel.deleteTask(task) }) {
+                  Label("Delete", systemImage: "trash")
+                }
+                Button(action: { viewModel.flagTask(task) }) {
+                  Label("Flag", systemImage: "flag")
+                }
+                .tint(Color(UIColor.systemOrange))
+                Button(action: {}) {
+                  Label("Details", systemImage: "ellipsis")
+                }
+                .tint(Color(UIColor.systemGray))
+              }
           }
-          .swipeActions {
-            Button(role: .destructive, action: { viewModel.deleteTask(task) }) {
-              Label("Delete", systemImage: "trash")
-            }
-            Button(action: { viewModel.flagTask(task) }) {
-              Label("Flag", systemImage: "flag")
-            }
-            .tint(Color(UIColor.systemOrange))
-            Button(action: {}) {
-              Label("Details", systemImage: "ellipsis")
-            }
-            .tint(Color(UIColor.systemGray))
-          }
+        }
+        .sync($viewModel.focusedTask, $focusedTask)
+        .animation(.default, value: viewModel.tasks)
+        .listStyle(.plain)
       }
     }
-    .sync($viewModel.focusedTask, $focusedTask)
-    .animation(.default, value: viewModel.tasks)
-    .listStyle(.plain)
     .navigationTitle("Tasks")
     .toolbar {
       ToolbarItemGroup(placement: .bottomBar) {
@@ -77,7 +85,7 @@ struct TasksListView: View {
 }
 
 struct TasksListView_Previews: PreviewProvider {
-  static var viewModel = TasksListViewModel(tasks: Task.samples)
+  static var viewModel = TasksListViewModel()
   
   static var previews: some View {
     NavigationView {

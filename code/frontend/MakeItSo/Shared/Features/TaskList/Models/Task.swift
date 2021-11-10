@@ -18,6 +18,7 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseFirestoreSwift
 
 enum Priority {
   case none
@@ -34,7 +35,8 @@ struct Location {
 }
 
 struct Task {
-  var id: String = UUID().uuidString
+  @DocumentID var id = UUID().uuidString
+  var userId: String?
   var title: String
   var notes: String?
   var url: URL?
@@ -59,6 +61,15 @@ struct Task {
 
   var completed: Bool = false
   var order: Int = 0
+}
+
+extension Task {
+  enum CodingKeys: String, CodingKey {
+    case id
+    case title
+    case completed
+    case userId
+  }
 }
 
 extension Priority: Codable, Equatable {
